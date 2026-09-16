@@ -1,5 +1,5 @@
 {
-  "name": "proxy-model",
+  "name": "@acolby/proxymodel",
   "version": "0.1.0",
   "description": "Model-first state with proxy mutations and efficient subscriptions.",
   "type": "module",
@@ -19,8 +19,17 @@
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "test": "node --test --import tsx test/*.test.ts",
-    "typecheck": "tsc -p tsconfig.json --noEmit"
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "prepublishOnly": "npm test && npm run build"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/acolby/proxymodel.git"
+  },
+  "bugs": {
+    "url": "https://github.com/acolby/proxymodel/issues"
+  },
+  "homepage": "https://github.com/acolby/proxymodel#readme",
   "keywords": [
     "state",
     "model",
@@ -28,6 +37,7 @@
     "immutable",
     "subscriptions"
   ],
+  "author": "acolby",
   "license": "MIT",
   "devDependencies": {
     "@types/node": "^22.5.0",
