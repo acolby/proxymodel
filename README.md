@@ -80,14 +80,17 @@ should be treated as immutable.
 
 ## Limitations
 
-This package is intentionally small and currently optimized for plain application
-state:
+This package is intentionally small and currently optimized for state whose
+meaningful changes happen through proxied property writes, deletes, and supported
+array operations:
 
-- State should be plain serializable objects, arrays, and primitives.
-- Keep runtime resources, functions, DOM nodes, promises, sockets, etc. outside
-  model state.
-- `Map`, `Set`, `Date`, class instances, and other non-plain objects are not
-  currently exposed as reactive mutable structures.
+- Plain objects, arrays, and primitives are the fully reactive path.
+- `Map`, `Set`, `Date`, class instances, sockets, DOM nodes, promises, and other
+  complex values may be stored in state, but they are treated as opaque
+  references. Internal mutations like `map.set(...)`, `date.setFullYear(...)`,
+  or `socket.close()` are not observed by the model.
+- If subscribers need to react to changes inside an opaque value, replace the
+  reference or update a separate version/status key on the model.
 - Do not mutate snapshots returned by `model.state()` or subscriber callbacks.
   TypeScript marks them as readonly, but there is no runtime freezing.
 - Common array access patterns are proxied inside actions, including direct
