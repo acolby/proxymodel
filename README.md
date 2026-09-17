@@ -90,17 +90,19 @@ state:
   currently exposed as reactive mutable structures.
 - Do not mutate snapshots returned by `model.state()` or subscriber callbacks.
   TypeScript marks them as readonly, but there is no runtime freezing.
-- Some less-common array APIs may return raw object references rather than
-  proxied values. Prefer direct indexing, iteration, and supported callback
-  methods inside actions for now.
+- Common array access patterns are proxied inside actions, including direct
+  indexing, `for...of`, `at()`, `slice()`, `values()`, `entries()`, `keys()`,
+  mutating methods like `push()`/`splice()`, and callback methods like
+  `find()`/`filter()`/`map()`/`forEach()`. Some less-common array APIs may
+  still return raw object references rather than proxied values.
 
 ## Roadmap
 
 Possible future hardening, without expanding the core too quickly:
 
-- Broaden array method coverage where it improves correctness.
-- Add more tests around subscription ordering, selectors, deletes, and edge-case
-  array behavior.
+- Continue broadening array method coverage where it improves correctness.
+- Add more tests around subscription ordering, selectors, deletes, and remaining
+  edge-case array behavior.
 - Consider optional integrations such as React hooks, devtools, or action
   logging as separate layers.
 
