@@ -1,4 +1,12 @@
-export type Subscriber<T> = (state: T, previous: T) => void
+export type ReadonlyDeep<T> = T extends (...args: any[]) => any
+  ? T
+  : T extends readonly (infer Item)[]
+    ? readonly ReadonlyDeep<Item>[]
+    : T extends object
+      ? { readonly [Key in keyof T]: ReadonlyDeep<T[Key]> }
+      : T
+
+export type Subscriber<T> = (state: ReadonlyDeep<T>, previous: ReadonlyDeep<T>) => void
 
 export type EqualityFn<T> = (a: T, b: T) => boolean
 
@@ -8,8 +16,8 @@ export type SelectOptions<T> = {
 }
 
 export type Model<State extends object, Actions extends object> = {
-  /** The current immutable state snapshot. Treat as readonly. */
-  state(): State
+  /** The current immutable state snapshot. */
+  state(): ReadonlyDeep<State>
 
   /** The action object created for this model. */
   actions(): Actions
@@ -19,7 +27,7 @@ export type Model<State extends object, Actions extends object> = {
 
   /** Subscribe to a selected value. Fires only when the selected value changes. */
   select<Selected>(
-    selector: (state: State) => Selected,
+    selector: (state: ReadonlyDeep<State>) => Selected,
     subscriber: (value: Selected, previous: Selected) => void,
     options?: SelectOptions<Selected>
   ): () => void

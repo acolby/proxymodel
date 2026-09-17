@@ -1,7 +1,7 @@
-import type { CreateActions, EqualityFn, Model, Subscriber } from './types.js'
+import type { CreateActions, EqualityFn, Model, ReadonlyDeep, Subscriber } from './types.js'
 import { deleteAtPath, getAtPath, hasAtPath, pathKey, setAtPath, type Path } from './path.js'
 
-export type { CreateActions, EqualityFn, Model, SelectOptions, Subscriber } from './types.js'
+export type { CreateActions, EqualityFn, Model, ReadonlyDeep, SelectOptions, Subscriber } from './types.js'
 
 const defaultEquality: EqualityFn<unknown> = Object.is
 
@@ -89,7 +89,7 @@ export function createModel<State extends object, Actions extends object>(
       previousForNotification = undefined
       if (Object.is(prev, root)) return
       for (const subscriber of Array.from(subscribers)) {
-        subscriber(root, prev)
+        subscriber(root as ReadonlyDeep<State>, prev as ReadonlyDeep<State>)
       }
     })
   }
@@ -258,7 +258,7 @@ export function createModel<State extends object, Actions extends object>(
   const actions = createActions(stateProxy)
 
   const model: Model<State, Actions> = {
-    state: () => root,
+    state: () => root as ReadonlyDeep<State>,
 
     actions: () => actions,
 
@@ -269,7 +269,7 @@ export function createModel<State extends object, Actions extends object>(
 
     select(selector, subscriber, options) {
       const equality = options?.equality ?? defaultEquality as EqualityFn<any>
-      let selected = selector(root)
+      let selected = selector(root as ReadonlyDeep<State>)
 
       if (options?.fireImmediately) {
         subscriber(selected, selected)

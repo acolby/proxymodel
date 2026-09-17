@@ -1,9 +1,9 @@
-# proxy-model
+# proxymodel
 
 Model-first state with proxy mutations and efficient subscriptions.
 
 ```ts
-import { createModel } from 'proxy-model'
+import { createModel } from '@acolby/proxymodel'
 
 const counter = createModel(
   { count: 0 },
@@ -31,7 +31,7 @@ counter.select(
 
 ## Why
 
-`proxy-model` gives you one small primitive: a live model that owns its state,
+`proxymodel` gives you one small primitive: a live model that owns its state,
 actions, and subscriptions.
 
 - Define state and actions together.
@@ -63,21 +63,48 @@ Returns:
 
 ```ts
 type Model<State, Actions> = {
-  state(): State
+  state(): ReadonlyDeep<State>
   actions(): Actions
-  subscribe(cb: (state: State, previous: State) => void): () => void
+  subscribe(cb: (state: ReadonlyDeep<State>, previous: ReadonlyDeep<State>) => void): () => void
   select<T>(
-    selector: (state: State) => T,
+    selector: (state: ReadonlyDeep<State>) => T,
     cb: (value: T, previous: T) => void,
     options?: { equality?: (a: T, b: T) => boolean; fireImmediately?: boolean }
   ): () => void
 }
 ```
 
+`createActions` receives a proxied, mutable view of the state. Snapshots returned
+from `state()`, `subscribe()`, and `select()` are typed as deeply readonly and
+should be treated as immutable.
+
+## Limitations
+
+This package is intentionally small and currently optimized for plain application
+state:
+
+- State should be plain serializable objects, arrays, and primitives.
+- Keep runtime resources, functions, DOM nodes, promises, sockets, etc. outside
+  model state.
+- `Map`, `Set`, `Date`, class instances, and other non-plain objects are not
+  currently exposed as reactive mutable structures.
+- Do not mutate snapshots returned by `model.state()` or subscriber callbacks.
+  TypeScript marks them as readonly, but there is no runtime freezing.
+- Some less-common array APIs may return raw object references rather than
+  proxied values. Prefer direct indexing, iteration, and supported callback
+  methods inside actions for now.
+
+## Roadmap
+
+Possible future hardening, without expanding the core too quickly:
+
+- Broaden array method coverage where it improves correctness.
+- Add more tests around subscription ordering, selectors, deletes, and edge-case
+  array behavior.
+- Consider optional integrations such as React hooks, devtools, or action
+  logging as separate layers.
+
 ## Notes
 
-This package is intentionally small. Composition layers, React hooks, devtools,
-and warm-reload adapters can be built on top of this primitive later.
-
-State is expected to be plain serializable data. Keep non-serializable runtime
-resources outside model state.
+Composition layers, React hooks, devtools, and hot-reload adapters can be built
+on top of this primitive later.
