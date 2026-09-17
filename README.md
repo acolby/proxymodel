@@ -91,8 +91,8 @@ state:
 - Do not mutate snapshots returned by `model.state()` or subscriber callbacks.
   TypeScript marks them as readonly, but there is no runtime freezing.
 - Common array access patterns are proxied inside actions, including direct
-  indexing, `for...of`, `at()`, `slice()`, `values()`, `entries()`, `keys()`,
-  mutating methods like `push()`/`splice()`, and callback methods like
+  indexing, `for...of`, `at()`, `slice()`, `concat()`, `values()`, `entries()`,
+  `keys()`, mutating methods like `push()`/`splice()`, and callback methods like
   `find()`/`filter()`/`map()`/`forEach()`. Some less-common array APIs may
   still return raw object references rather than proxied values.
 

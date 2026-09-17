@@ -98,6 +98,7 @@ export function createModel<State extends object, Actions extends object>(
             proxyFor,
             commit,
             unwrap,
+            getProxyPath: value => isObject(value) ? proxyPaths.get(value) : undefined,
           })
         }
 

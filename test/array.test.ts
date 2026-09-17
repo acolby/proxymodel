@@ -69,3 +69,36 @@ test('array keys iterator yields indexes', () => {
 
   assert.deepEqual(model.actions().keys(), [0, 1])
 })
+
+test('array concat returns proxied receiver items', async () => {
+  const model = createModel({ items: [{ done: false }] }, state => ({
+    markDone() {
+      const items = state.items.concat()
+      items[0]!.done = true
+    },
+  }))
+
+  model.actions().markDone()
+  await tick()
+
+  assert.deepEqual(model.state().items.map(item => item.done), [true])
+})
+
+test('array concat returns proxied items from other model arrays', async () => {
+  const model = createModel({
+    open: [{ done: false }],
+    closed: [{ done: false }],
+  }, state => ({
+    markBothDone() {
+      const items = state.open.concat(state.closed)
+      items[0]!.done = true
+      items[1]!.done = true
+    },
+  }))
+
+  model.actions().markBothDone()
+  await tick()
+
+  assert.deepEqual(model.state().open.map(item => item.done), [true])
+  assert.deepEqual(model.state().closed.map(item => item.done), [true])
+})

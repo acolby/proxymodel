@@ -8,6 +8,7 @@ type ArrayProxyContext<State extends object> = {
   proxyFor(path: Path): any
   commit(nextRoot: State): void
   unwrap(value: unknown): unknown
+  getProxyPath(value: unknown): Path | undefined
 }
 
 const mutatingArrayMethods = new Set([
@@ -65,6 +66,7 @@ export function getArrayProperty<State extends object>({
   proxyFor,
   commit,
   unwrap,
+  getProxyPath,
 }: ArrayProxyContext<State>): unknown {
   const itemProxy = (item: unknown, index: number) =>
     isObject(item) ? proxyFor([...path, index]) : item
@@ -119,6 +121,37 @@ export function getArrayProperty<State extends object>({
       for (let i = first; i < last; i++) {
         result.push(itemProxy(array[i], i))
       }
+      return result
+    }
+  }
+
+  if (prop === 'concat') {
+    return (...items: unknown[]) => {
+      const result: unknown[] = []
+
+      for (let i = 0; i < array.length; i++) {
+        result.push(itemProxy(array[i], i))
+      }
+
+      for (const value of items) {
+        const proxyPath = getProxyPath(value)
+        const proxiedValue = proxyPath ? getAtPath(getRoot(), proxyPath) : undefined
+
+        if (proxyPath && Array.isArray(proxiedValue)) {
+          for (let i = 0; i < proxiedValue.length; i++) {
+            result.push(isObject(proxiedValue[i]) ? proxyFor([...proxyPath, i]) : proxiedValue[i])
+          }
+          continue
+        }
+
+        if (Array.isArray(value)) {
+          result.push(...value)
+          continue
+        }
+
+        result.push(value)
+      }
+
       return result
     }
   }
