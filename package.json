@@ -1,6 +1,6 @@
 {
   "name": "@acolby/proxymodel",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Model-first state with proxy mutations and efficient subscriptions.",
   "type": "module",
   "main": "./dist/index.js",
